@@ -30,25 +30,25 @@ export function FavoritesScreen() {
   }, []);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "favorites"),
-      where("idUser", "==", auth.currentUser.uid)
-    );
-
-    onSnapshot(q, async (snapshot) => {
-      let restaurantArray = [];
-      for await (const item of snapshot.docs) {
-        const data = item.data();
-        const docRef = doc(db, "restaurants", data.idRestaurant);
-        const docSnap = await getDoc(docRef);
-        const newData = docSnap.data();
-        newData.idFavorite = data.id;
-
-        restaurantArray.push(newData);
-      }
-      setRestaurants(restaurantArray);
-    });
-  }, []);
+    if (auth?.currentUser) {
+      const q = query(
+        collection(db, "favorites"),
+        where("idUser", "==", auth.currentUser.uid)
+      );
+      onSnapshot(q, async (snapshot) => {
+        let restaurantArray = [];
+        for await (const item of snapshot.docs) {
+          const data = item.data();
+          const docRef = doc(db, "restaurants", data.idRestaurant);
+          const docSnap = await getDoc(docRef);
+          const newData = docSnap.data();
+          newData.idFavorite = data.id;
+          restaurantArray.push(newData);
+        }
+        setRestaurants(restaurantArray);
+      });
+    }
+  }, [auth]);
 
   if (!hasLogged) return <UserNotLogged />;
 
